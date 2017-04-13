@@ -9,6 +9,7 @@ class MixpanelEventListener
 	{
 
 		$user        = $event->user;
+		$eventName   = $event->eventName;
 		$profileData = $this->getProfileData( $user );
 		$profileData = array_merge( $profileData, $event->profileData );
 
@@ -19,9 +20,9 @@ class MixpanelEventListener
 			app( 'mixpanel' )->people->trackCharge( $user->id, $event->charge );
 		}
 
-		array_map( function($data) {
+		array_map( function($data) use ($eventName) {
 
-			app( 'mixpanel' )->track( $data );
+			app( 'mixpanel' )->track( $eventName, $data );
 		}, $event->trackingData );
 	}
 
@@ -47,6 +48,9 @@ class MixpanelEventListener
 			'$created'    => ($user->created_at
 				? $user->created_at->format( 'Y-m-d\Th:i:s' )
 				: NULL),
+			'$domain'     => (request()->header( 'referer' )
+				? parse_url( request()->header( 'referer' ) )['host']
+				: NULL)
 		];
 		array_filter( $data );
 
