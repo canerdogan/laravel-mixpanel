@@ -5,16 +5,6 @@ use CanErdogan\LaravelMixpanel\Events\MixpanelEvent;
 class LaravelMixpanelUserObserver
 {
 
-	public function created ($user)
-	{
-
-		$trackingData = [
-			['User', ['Status' => 'Registered']],
-		];
-		event(new MixpanelEvent('User Registered', $user, $trackingData));
-	}
-
-
 	public function saving ($user)
 	{
 

@@ -1,7 +1,7 @@
 <?php namespace CanErdogan\LaravelMixpanel\Listeners;
 
-use Illuminate\Auth\Events\Attempting;
-use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Auth\Guard;
@@ -21,64 +21,49 @@ class LaravelMixpanelEventHandler
 	}
 
 
-	public function onUserLoginAttempt ($event)
+	public function onUserLoginFailed ($event)
 	{
-
-		$email    = $event->credentials['email'] ?? '';
-		$password = $event->credentials['password'] ?? '';
-
-		if(starts_with( app()->version(), '5.1.' )) {
-			$email    = $event['email'] ?? '';
-			$password = $event['password'] ?? '';
-		}
-
-		$authModel    = config( 'auth.providers.users.model' ) ?? config( 'auth.model' );
-		$user         = app( $authModel )
-			->where( 'email', $email )
-			->first();
+		$user         = $event->user ?? $event;
 		$trackingData = [
-			['Session', ['Status' => 'Login Attempt Succeeded']],
+			['Session', ['Status' => 'Login Attempt Failed']],
 		];
-
-		if($user
-		   && ! $this->guard->getProvider()->validateCredentials( $user, ['email' => $email, 'password' => $password] )
-		) {
-			$trackingData = [
-				['Session', ['Status' => 'Login Attempt Failed']],
-			];
-		}
-
 		event(new MixpanelEvent('Login Attempt', $user, $trackingData));
 	}
 
 
-	public function onUserLogin ($login)
+	public function onUserLogin ($event)
 	{
 
-		$user         = $login->user ?? $login;
+		$user         = $event->user ?? $event;
 		$trackingData = [['Session', ['Status' => 'Logged In']]];
 		event(new MixpanelEvent('User Login', $user, $trackingData));
 	}
 
 
-	public function onUserLogout ($logout)
+	public function onUserLogout ($event)
 	{
 
-		$user         = $logout->user ?? $logout;
+		$user         = $event->user ?? $event;
 		$trackingData = [['Session', ['Status' => 'Logged Out']]];
 		event(new MixpanelEvent('User Logout', $user, $trackingData));
+	}
+
+	public function onUserRegister ($event)
+	{
+
+		$user         = $event->user ?? $event;
+		app( 'mixpanel' )->alias( $user->getKey() );
+		$trackingData = [['Session', ['Status' => 'Registered']]];
+		event(new MixpanelEvent('User Registered', $user, $trackingData));
 	}
 
 
 	public function subscribe (Dispatcher $events)
 	{
 
-		$events->listen( 'auth.attempt', self::class . '@onUserLoginAttempt' );
-		$events->listen( 'auth.login', self::class . '@onUserLogin' );
-		$events->listen( 'auth.logout', self::class . '@onUserLogout' );
-
-		$events->listen( Attempting::class, self::class . '@onUserLoginAttempt' );
+		$events->listen( Failed::class, self::class . '@onUserLoginFailed' );
 		$events->listen( Login::class, self::class . '@onUserLogin' );
 		$events->listen( Logout::class, self::class . '@onUserLogout' );
+		$events->listen( Registered::class, self::class . '@onUserRegister' );
 	}
 }

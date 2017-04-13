@@ -1,6 +1,7 @@
 <?php namespace CanErdogan\LaravelMixpanel\Listeners;
 
 use CanErdogan\LaravelMixpanel\Events\MixpanelEvent as Event;
+use Carbon\Carbon;
 
 class MixpanelEventListener
 {
@@ -29,30 +30,35 @@ class MixpanelEventListener
 
 	private function getProfileData ($user): array
 	{
+		$authModel = config( 'auth.providers.users.model' ) ?? config( 'auth.model' );
 
-		$firstName = $user->first_name;
-		$lastName  = $user->last_name;
+		$data = [];
+		if($user instanceof $authModel) {
+			$firstName = $user->first_name;
+			$lastName  = $user->last_name;
 
-		if($user->name) {
-			$nameParts = explode( ' ', $user->name );
-			array_filter( $nameParts );
-			$lastName  = array_pop( $nameParts );
-			$firstName = implode( ' ', $nameParts );
+			if($user->name) {
+				$nameParts = explode( ' ', $user->name );
+				array_filter( $nameParts );
+				$lastName = array_pop( $nameParts );
+				$firstName = implode( ' ', $nameParts );
+			}
+
+			$data = [
+				'$first_name' => $firstName,
+				'$last_name'  => $lastName,
+				'$name'       => $user->name,
+				'$email'      => $user->email,
+				'$created'    => ($user->created_at
+					? ($user->created_at instanceof Carbon ? $user->created_at->format( 'Y-m-d\Th:i:s' )
+						: Carbon::parse( $user->created_at )->format( 'Y-m-d\Th:i:s' ))
+					: NULL),
+				'$domain'     => (request()->header( 'referer' )
+					? parse_url( request()->header( 'referer' ) )['host']
+					: NULL)
+			];
+			array_filter( $data );
 		}
-
-		$data = [
-			'$first_name' => $firstName,
-			'$last_name'  => $lastName,
-			'$name'       => $user->name,
-			'$email'      => $user->email,
-			'$created'    => ($user->created_at
-				? $user->created_at->format( 'Y-m-d\Th:i:s' )
-				: NULL),
-			'$domain'     => (request()->header( 'referer' )
-				? parse_url( request()->header( 'referer' ) )['host']
-				: NULL)
-		];
-		array_filter( $data );
 
 		return $data;
 	}
