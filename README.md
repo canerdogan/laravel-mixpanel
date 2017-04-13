@@ -65,6 +65,24 @@ MIXPANEL_TOKEN=xxxxxxxxxxxxxxxxxxxxxx
 - Page view tracking has been removed in favor of Mixpanels in-built Autotrack functionality, which tracks all page views. To turn it on, visit your Mixpanel dashboard, click *Applications > Autotrack > Web > etc.* and enable Autotracking.
 
 ## Usage
+###Track
+```php
+event( new MixpanelEvent( 'Dashboard' ) );
+```
+OR
+```php
+event( new MixpanelEvent( 'Welcome Modal', Auth::user() ) );
+```
+OR With parameters
+```php
+event( new MixpanelEvent( 'Send Invitation', ['Status' => 'Done'] ) );
+```
+
+###Increment
+```php
+event( new MixpanelEvent( 'increment', ['Login Count', 1] ) );
+```
+
 ### PHP Events
 
 ### Stripe Web-Hook

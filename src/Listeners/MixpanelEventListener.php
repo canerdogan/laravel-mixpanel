@@ -10,11 +10,13 @@ class MixpanelEventListener
 
 	public function handle (Event $event)
 	{
+
 		$authModel = config( 'auth.providers.users.model' ) ?? config( 'auth.model' );
 
 		$user         = NULL;
 		$charge       = 0;
 		$trackingData = [];
+		$key          = NULL;
 		foreach($event->arguments as $argument) {
 			if($argument instanceof $authModel) {
 				$user = $argument;
@@ -33,17 +35,23 @@ class MixpanelEventListener
 				$user = Auth::user();
 			}
 
-			app( 'mixpanel' )->identify( $user->getKey() );
-			app( 'mixpanel' )->people->set( $user->getKey(), $profileData, request()->ip() );
+			$key = $user->getKey();
+			app( 'mixpanel' )->identify( $key );
+			app( 'mixpanel' )->people->set( $key, $profileData, request()->ip() );
 
 			if($charge !== 0) {
-				app( 'mixpanel' )->people->trackCharge( $user->id, $charge );
+				app( 'mixpanel' )->people->trackCharge( $key, $charge );
 			}
 		} else {
-			app( 'mixpanel' )->identify( Session::getId() );
+			$key = Session::getId();
+			app( 'mixpanel' )->identify( $key );
 		}
 
-		app( 'mixpanel' )->track( $eventName, $trackingData );
+		if(in_array( $eventName, ['increment', 'append', 'trackCharge'] )) {
+			call_user_func_array( array(app( 'mixpanel' )->people, $eventName), array_prepend( $trackingData, $key ) );
+		} else {
+			app( 'mixpanel' )->track( $eventName, $trackingData );
+		}
 	}
 
 
