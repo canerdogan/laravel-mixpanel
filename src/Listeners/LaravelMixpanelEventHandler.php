@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Events\Dispatcher;
 use CanErdogan\LaravelMixpanel\Events\MixpanelEvent;
+use Illuminate\Support\Facades\Session;
 
 class LaravelMixpanelEventHandler
 {
@@ -24,10 +25,7 @@ class LaravelMixpanelEventHandler
 	public function onUserLoginFailed ($event)
 	{
 		$user         = $event->user ?? $event;
-		$trackingData = [
-			['Session', ['Status' => 'Login Attempt Failed']],
-		];
-		event(new MixpanelEvent('Login Attempt', $user, $trackingData));
+		event(new MixpanelEvent('Login Attempt', $user));
 	}
 
 
@@ -35,8 +33,7 @@ class LaravelMixpanelEventHandler
 	{
 
 		$user         = $event->user ?? $event;
-		$trackingData = [['Session', ['Status' => 'Logged In']]];
-		event(new MixpanelEvent('User Login', $user, $trackingData));
+		event(new MixpanelEvent('User Login', $user));
 	}
 
 
@@ -44,17 +41,15 @@ class LaravelMixpanelEventHandler
 	{
 
 		$user         = $event->user ?? $event;
-		$trackingData = [['Session', ['Status' => 'Logged Out']]];
-		event(new MixpanelEvent('User Logout', $user, $trackingData));
+		event(new MixpanelEvent('User Logout', $user));
 	}
 
 	public function onUserRegister ($event)
 	{
 
 		$user         = $event->user ?? $event;
-		app( 'mixpanel' )->alias( $user->getKey() );
-		$trackingData = [['Session', ['Status' => 'Registered']]];
-		event(new MixpanelEvent('User Registered', $user, $trackingData));
+		app( 'mixpanel' )->createAlias( Session::getId(), $user->getKey() );
+		event(new MixpanelEvent('User Registered', $user));
 	}
 
 

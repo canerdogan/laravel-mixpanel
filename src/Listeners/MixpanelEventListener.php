@@ -2,34 +2,54 @@
 
 use CanErdogan\LaravelMixpanel\Events\MixpanelEvent as Event;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class MixpanelEventListener
 {
 
 	public function handle (Event $event)
 	{
+		$authModel = config( 'auth.providers.users.model' ) ?? config( 'auth.model' );
 
-		$user        = $event->user;
-		$eventName   = $event->eventName;
-		$profileData = $this->getProfileData( $user );
-		$profileData = array_merge( $profileData, $event->profileData );
-
-		app( 'mixpanel' )->identify( $user->getKey() );
-		app( 'mixpanel' )->people->set( $user->getKey(), $profileData, request()->ip() );
-
-		if($event->charge !== 0) {
-			app( 'mixpanel' )->people->trackCharge( $user->id, $event->charge );
+		$user         = NULL;
+		$charge       = 0;
+		$trackingData = [];
+		foreach($event->arguments as $argument) {
+			if($argument instanceof $authModel) {
+				$user = $argument;
+			} elseif(is_int( $argument )) {
+				$charge = $argument;
+			} elseif(is_array( $argument )) {
+				$trackingData = $argument;
+			}
 		}
 
-		array_map( function($data) use ($eventName) {
+		$eventName   = $event->eventName;
+		$profileData = $this->getProfileData( $user );
 
-			app( 'mixpanel' )->track( $eventName, $data );
-		}, $event->trackingData );
+		if($user instanceof $authModel or Auth::check()) {
+			if(is_null( $user )) {
+				$user = Auth::user();
+			}
+
+			app( 'mixpanel' )->identify( $user->getKey() );
+			app( 'mixpanel' )->people->set( $user->getKey(), $profileData, request()->ip() );
+
+			if($charge !== 0) {
+				app( 'mixpanel' )->people->trackCharge( $user->id, $charge );
+			}
+		} else {
+			app( 'mixpanel' )->identify( Session::getId() );
+		}
+
+		app( 'mixpanel' )->track( $eventName, $trackingData );
 	}
 
 
 	private function getProfileData ($user): array
 	{
+
 		$authModel = config( 'auth.providers.users.model' ) ?? config( 'auth.model' );
 
 		$data = [];
@@ -40,7 +60,7 @@ class MixpanelEventListener
 			if($user->name) {
 				$nameParts = explode( ' ', $user->name );
 				array_filter( $nameParts );
-				$lastName = array_pop( $nameParts );
+				$lastName  = array_pop( $nameParts );
 				$firstName = implode( ' ', $nameParts );
 			}
 

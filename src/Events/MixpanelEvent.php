@@ -11,37 +11,12 @@ class MixpanelEvent
 	use SerializesModels;
 
 	public $eventName;
-
-	public $charge;
-
-	public $profileData;
-
-	public $trackingData;
-
-	public $user;
+	public $arguments;
 
 
-	public function __construct (string $eventName, $user, array $trackingData, int $charge = 0, array $profileData = [])
-	{
+	public function __construct (string $eventName, ...$arguments) {
 
 		$this->eventName    = $eventName;
-		$this->charge       = $charge;
-		$this->profileData  = $profileData;
-		$this->trackingData = $this->addTimestamp( $trackingData );
-		$this->user         = $user;
-	}
-
-
-	private function addTimestamp (array $trackingData): array
-	{
-
-		return array_map( function($data) {
-
-			if( ! array_key_exists( 'time', $data )) {
-				$data['time'] = time();
-			}
-
-			return $data;
-		}, $trackingData );
+		$this->arguments    = $arguments;
 	}
 }
