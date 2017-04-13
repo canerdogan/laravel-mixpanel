@@ -1,4 +1,4 @@
-<?php namespace GeneaLabs\LaravelMixpanel\Events;
+<?php namespace CanErdogan\LaravelMixpanel\Events;
 
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;

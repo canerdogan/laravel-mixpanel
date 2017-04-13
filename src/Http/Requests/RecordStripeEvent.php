@@ -1,4 +1,4 @@
-<?php namespace GeneaLabs\LaravelMixpanel\Http\Requests;
+<?php namespace CanErdogan\LaravelMixpanel\Http\Requests;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;

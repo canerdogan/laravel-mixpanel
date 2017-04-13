@@ -15,17 +15,17 @@
 - Laravel 5.4 (current)
 
 ### Legacy Versions
-- [Laravel 5.2](https://github.com/GeneaLabs/laravel-mixpanel/tree/afcf3737412c1aebfa9dd1d7687001f78bdb3956)
-- [Laravel 5.0](https://github.com/GeneaLabs/laravel-mixpanel/tree/ce110ebd89658cbf8a91f2cfb5db57e2b449e7f3)
+- [Laravel 5.2](https://github.com/CanErdogan/laravel-mixpanel/tree/afcf3737412c1aebfa9dd1d7687001f78bdb3956)
+- [Laravel 5.0](https://github.com/CanErdogan/laravel-mixpanel/tree/ce110ebd89658cbf8a91f2cfb5db57e2b449e7f3)
 
 ## Installation
 ```sh
-composer require genealabs/laravel-mixpanel
+composer require canerdogan/laravel-mixpanel
 ```
 
 Add the service provider entry in `config\app.php`:
 ```php
-GeneaLabs\LaravelMixpanel\Providers\LaravelMixpanelService::class,
+CanErdogan\LaravelMixpanel\Providers\LaravelMixpanelService::class,
 ```
 
 Verify that your auth configuration file `config/auth.php` has the user model
@@ -78,7 +78,7 @@ Once that has been completed, exempt the web-hook endpoint from CSRF-validation
  in `/app/Http/Middleware/VerifyCsrfToken.php`:
 ```php
     protected $except = [
-        'genealabs/laravel-mixpanel/stripe',
+        'canerdogan/laravel-mixpanel/stripe',
     ];
 ```
 
@@ -86,7 +86,7 @@ The only other step remaining is to register the web-hook with Stripe:
   Log into your Stripe account: https://dashboard.stripe.com/dashboard, and open
    your account settings' webhook tab:
 
-  Enter your MixPanel web-hook URL, similar to the following: `http://<your server.com>/genealabs/laravel-mixpanel/stripe`:
+  Enter your MixPanel web-hook URL, similar to the following: `http://<your server.com>/canerdogan/laravel-mixpanel/stripe`:
    ![screen shot 2015-05-31 at 1 35 01 pm](https://cloud.githubusercontent.com/assets/1791050/7903765/53ba6fe4-079b-11e5-9f92-a588bd81641d.png)
 
   Be sure to select "Live" if you are actually running live (otherwise put into test mode and update when you go live).
@@ -97,7 +97,7 @@ The only other step remaining is to register the web-hook with Stripe:
 Add the following lines to your `/resources/js/app.js` (or equivalent), and
  don't forget to replace `YOUR_MIXPANEL_TOKEN` with your actual token:
 ```js
-require('./../../../public/genealabs-laravel-mixpanel/js/mixpanel.js');
+require('./../../../public/canerdogan-laravel-mixpanel/js/mixpanel.js');
 mixpanel.init("YOUR_MIXPANEL_TOKEN");
 ```
 
@@ -109,7 +109,7 @@ php artisan mixpanel:publish --assets
 
 Then add the following to the head section of your layout template:
 ```blade
-@include ('genealabs-laravel-mixpanel::partials.mixpanel')
+@include ('canerdogan-laravel-mixpanel::partials.mixpanel')
 ```
 
 ## Usage
@@ -129,7 +129,7 @@ Common user events are automatically recorded:
 
 To make custom events, simple get MixPanel from the IoC using DI:
 ```php
-use GeneaLabs\LaravelMixPanel\LaravelMixPanel;
+use CanErdogan\LaravelMixPanel\LaravelMixPanel;
 
 class MyClass
 {
@@ -226,7 +226,7 @@ the first name. Otherwise it will look for `first_name` and `last_name` fields i
       - Status: Logged Out
   ```
 
-### Stripe Integration
+### Stripe Integration (test needed)
 Many L5 sites are running Cashier to manage their subscriptions. This package creates an API webhook endpoint that keeps
  vital payment analytics recorded in MixPanel to help identify customer churn.
 

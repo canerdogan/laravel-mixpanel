@@ -1,6 +1,6 @@
-<?php namespace GeneaLabs\LaravelMixpanel\Listeners;
+<?php namespace CanErdogan\LaravelMixpanel\Listeners;
 
-use GeneaLabs\LaravelMixpanel\Events\MixpanelEvent;
+use CanErdogan\LaravelMixpanel\Events\MixpanelEvent;
 
 class LaravelMixpanelUserObserver
 {

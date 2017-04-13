@@ -16,5 +16,5 @@ elixir.config.sourcemaps = false;
 elixir(function(mix) {
     // TODO: also build a minified version without a map file
 
-    mix.browserify('mixpanel.js', 'public/genealabs-laravel-mixpanel/js');
+    mix.browserify('mixpanel.js', 'public/canerdogan-laravel-mixpanel/js');
 });

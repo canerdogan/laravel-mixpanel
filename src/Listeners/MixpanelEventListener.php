@@ -1,8 +1,8 @@
-<?php namespace GeneaLabs\LaravelMixpanel\Listeners;
+<?php namespace CanErdogan\LaravelMixpanel\Listeners;
 
-use GeneaLabs\LaravelMixpanel\Events\MixpanelEvent as Event;
+use CanErdogan\LaravelMixpanel\Events\MixpanelEvent as Event;
 
-class MixpanelEvent
+class MixpanelEventListener
 {
     public function handle(Event $event)
     {

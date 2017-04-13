@@ -1,6 +1,6 @@
-<?php namespace GeneaLabs\LaravelMixpanel\Http\Controllers;
+<?php namespace CanErdogan\LaravelMixpanel\Http\Controllers;
 
-use GeneaLabs\LaravelMixpanel\Http\Requests\RecordStripeEvent;
+use CanErdogan\LaravelMixpanel\Http\Requests\RecordStripeEvent;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
