@@ -4,47 +4,52 @@ use CanErdogan\LaravelMixpanel\Events\MixpanelEvent as Event;
 
 class MixpanelEventListener
 {
-    public function handle(Event $event)
-    {
-        $user = $event->user;
-        $profileData = $this->getProfileData($user);
-        $profileData = array_merge($profileData, $event->profileData);
 
-        app('mixpanel')->identify($user->getKey());
-        app('mixpanel')->people->set($user->getKey(), $profileData, request()->ip());
+	public function handle (Event $event)
+	{
 
-        if ($event->charge !== 0) {
-            app('mixpanel')->people->trackCharge($user->id, $event->charge);
-        }
+		$user        = $event->user;
+		$profileData = $this->getProfileData( $user );
+		$profileData = array_merge( $profileData, $event->profileData );
 
-        array_map(function ($data) {
-            app('mixpanel')->track($data);
-        }, $event->trackingData);
-    }
+		app( 'mixpanel' )->identify( $user->getKey() );
+		app( 'mixpanel' )->people->set( $user->getKey(), $profileData, request()->ip() );
 
-    private function getProfileData($user) : array
-    {
-        $firstName = $user->first_name;
-        $lastName = $user->last_name;
+		if($event->charge !== 0) {
+			app( 'mixpanel' )->people->trackCharge( $user->id, $event->charge );
+		}
 
-        if ($user->name) {
-            $nameParts = explode(' ', $user->name);
-            array_filter($nameParts);
-            $lastName = array_pop($nameParts);
-            $firstName = implode(' ', $nameParts);
-        }
+		array_map( function($data) {
 
-        $data = [
-            '$first_name' => $firstName,
-            '$last_name' => $lastName,
-            '$name' => $user->name,
-            '$email' => $user->email,
-            '$created' => ($user->created_at
-                ? $user->created_at->format('Y-m-d\Th:i:s')
-                : null),
-        ];
-        array_filter($data);
+			app( 'mixpanel' )->track( $data );
+		}, $event->trackingData );
+	}
 
-        return $data;
-    }
+
+	private function getProfileData ($user): array
+	{
+
+		$firstName = $user->first_name;
+		$lastName  = $user->last_name;
+
+		if($user->name) {
+			$nameParts = explode( ' ', $user->name );
+			array_filter( $nameParts );
+			$lastName  = array_pop( $nameParts );
+			$firstName = implode( ' ', $nameParts );
+		}
+
+		$data = [
+			'$first_name' => $firstName,
+			'$last_name'  => $lastName,
+			'$name'       => $user->name,
+			'$email'      => $user->email,
+			'$created'    => ($user->created_at
+				? $user->created_at->format( 'Y-m-d\Th:i:s' )
+				: NULL),
+		];
+		array_filter( $data );
+
+		return $data;
+	}
 }

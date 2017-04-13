@@ -7,29 +7,41 @@ use Carbon\Carbon;
 
 class MixpanelEvent
 {
-    use SerializesModels;
 
-    public $charge;
-    public $profileData;
-    public $trackingData;
-    public $user;
+	use SerializesModels;
 
-    public function __construct($user, array $trackingData, int $charge = 0, array $profileData = [])
-    {
-        $this->charge = $charge;
-        $this->profileData = $profileData;
-        $this->trackingData = $this->addTimestamp($trackingData);
-        $this->user = $user;
-    }
+	public $eventName;
 
-    private function addTimestamp(array $trackingData) : array
-    {
-        return array_map(function ($data) {
-            if (! array_key_exists('time', $data)) {
-                $data['time'] = time();
-            }
+	public $charge;
 
-            return $data;
-        }, $trackingData);
-    }
+	public $profileData;
+
+	public $trackingData;
+
+	public $user;
+
+
+	public function __construct (string $eventName, $user, array $trackingData, int $charge = 0, array $profileData = [])
+	{
+
+		$this->eventName    = $eventName;
+		$this->charge       = $charge;
+		$this->profileData  = $profileData;
+		$this->trackingData = $this->addTimestamp( $trackingData );
+		$this->user         = $user;
+	}
+
+
+	private function addTimestamp (array $trackingData): array
+	{
+
+		return array_map( function($data) {
+
+			if( ! array_key_exists( 'time', $data )) {
+				$data['time'] = time();
+			}
+
+			return $data;
+		}, $trackingData );
+	}
 }
